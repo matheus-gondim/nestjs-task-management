@@ -1,12 +1,13 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { AuthCredentialsDto } from './dto/auth-credentials.dto';
-import { JwtPlayload } from './jwt-playload.interface';
+import { JwtPlayload } from './jwt/jwt-playload.interface';
 import { UserRepository } from './user.repository';
 
 @Injectable()
 export class AuthService {
+  private logger = new Logger('AuthService');
   constructor(
     @InjectRepository(UserRepository)
     private userRepository: UserRepository,
@@ -30,7 +31,9 @@ export class AuthService {
 
     const playload: JwtPlayload = { username };
     const accessToken = await this.jwtService.sign(playload);
-
+    this.logger.debug(
+      `Generated JWT Token with payload ${JSON.stringify(playload)}`,
+    );
     return { accessToken };
   }
 }

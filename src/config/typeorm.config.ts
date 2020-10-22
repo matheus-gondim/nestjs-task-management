@@ -2,17 +2,19 @@ import * as config from 'config';
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { readFileSync } from 'fs';
 
+const dbconfig = config.get('db');
+
 export const typeOrmConfig: TypeOrmModuleOptions = {
-  type: config.get('database.type'),
-  host: config.get('database.host'),
-  port: config.get('database.port'),
-  username: config.get('database.username'),
-  password: config.get('database.password'),
-  database: config.get('database.namedb'),
+  type: dbconfig.type,
+  host: process.env.RDS_HOSTNAME || dbconfig.host,
+  port: process.env.RDS_PORT || dbconfig.port,
+  username: process.env.RDS_USERNAME || dbconfig.username,
+  password: process.env.RDS_PASSWORD || dbconfig.password,
+  database: process.env.RDS_DB_NAME || dbconfig.database,
   entities: [__dirname + '/../**/*.entity.{js,ts}'],
-  synchronize: true,
+  synchronize: process.env.TYPEORN_SYNC || dbconfig.synchronize,
   ssl: {
     rejectUnauthorized: false,
-    ca: readFileSync(config.get('database.ssl_ca')).toString(),
+    ca: readFileSync(dbconfig.ssl_ca).toString(),
   },
 };
